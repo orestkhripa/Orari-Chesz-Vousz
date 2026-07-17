@@ -1,0 +1,369 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ore di Chirine</title>
+<style>
+  :root{
+    --bg:#0e1014; --bg2:#141821; --card:#191d27; --card2:#222736; --txt:#eceef4; --muted:#98a1b4;
+    --line:#2b3140; --accent:#7c9bff; --accent2:#a678ff; --ok:#4ade80; --danger:#fb7185; --gold:#ffd257;
+    --radius:18px; --shadow:0 6px 24px rgba(0,0,0,.35);
+  }
+  @media (prefers-color-scheme: light){
+    :root{ --bg:#eef1f6; --bg2:#e6eaf2; --card:#ffffff; --card2:#f2f4f9; --txt:#1a1e27; --muted:#616a7d;
+      --line:#e4e8f0; --accent:#4f6bed; --accent2:#7c5cf0; --gold:#e6a100;
+      --shadow:0 6px 22px rgba(40,55,90,.10); }
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;color:var(--txt);
+    background:
+      radial-gradient(1200px 600px at 100% -10%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 60%),
+      radial-gradient(900px 500px at -10% 0%, color-mix(in srgb, var(--accent2) 14%, transparent), transparent 55%),
+      var(--bg);
+    background-repeat:no-repeat;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif;
+    -webkit-text-size-adjust:100%;line-height:1.45}
+  .wrap{max-width:660px;margin:0 auto;padding:22px 16px 70px}
+
+  /* intestazione */
+  .head{display:flex;align-items:center;gap:12px;margin:2px 0 4px}
+  .logo{width:46px;height:46px;border-radius:14px;flex:none;display:grid;place-items:center;
+    font-size:24px;background:linear-gradient(135deg,var(--accent),var(--accent2));
+    box-shadow:0 6px 18px color-mix(in srgb,var(--accent) 45%,transparent)}
+  h1{font-size:22px;font-weight:750;letter-spacing:-.3px;margin:0}
+  .sub{color:var(--muted);font-size:13px;margin:2px 0 18px}
+  .sub b{color:var(--txt)}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:16px;margin-bottom:14px;box-shadow:var(--shadow)}
+  .card-t{font-weight:650;font-size:15px;margin-bottom:2px;display:flex;align-items:center;gap:8px}
+
+  /* riquadro settimana (hero) */
+  .hero{background:linear-gradient(150deg,color-mix(in srgb,var(--accent) 22%,var(--card)),var(--card) 62%);
+    border:1px solid color-mix(in srgb,var(--accent) 30%,var(--line))}
+  .weeknav{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
+  .weeknav .rng{font-weight:700;font-size:16px;text-align:center;flex:1;letter-spacing:-.2px}
+  .navbtn{background:var(--card2);border:1px solid var(--line);color:var(--txt);
+    width:44px;height:44px;border-radius:13px;font-size:22px;cursor:pointer;flex:none;
+    display:grid;place-items:center;transition:.12s}
+  .navbtn:hover{border-color:var(--accent);color:var(--accent)}
+  .navbtn:active{transform:scale(.93)}
+  .summary{display:grid;grid-template-columns:1fr 1.2fr;gap:12px}
+  .stat{background:color-mix(in srgb,var(--card2) 70%,transparent);border:1px solid var(--line);
+    border-radius:14px;padding:13px 15px}
+  .stat .lab{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.7px;font-weight:600}
+  .stat .val{font-size:26px;font-weight:800;margin-top:4px;letter-spacing:-.5px;font-variant-numeric:tabular-nums}
+  .stat.pay{background:linear-gradient(135deg,color-mix(in srgb,var(--gold) 22%,var(--card2)),var(--card2));
+    border-color:color-mix(in srgb,var(--gold) 35%,var(--line))}
+  .stat.pay .val{color:var(--gold)}
+  .today-wrap{text-align:center;margin-top:14px}
+
+  /* giorni */
+  .day{border:1px solid var(--line);border-radius:15px;margin-bottom:11px;overflow:hidden;
+    background:var(--card);box-shadow:var(--shadow);transition:.15s}
+  .day.active{border-color:color-mix(in srgb,var(--accent) 32%,var(--line))}
+  .day-h{display:flex;align-items:center;justify-content:space-between;padding:12px 14px}
+  .day-h .name{display:flex;align-items:center;gap:9px}
+  .day-h .wd{font-weight:650;text-transform:capitalize;font-size:15px}
+  .day-h .dt{font-size:12px;color:var(--muted);background:var(--card2);border:1px solid var(--line);
+    padding:2px 8px;border-radius:20px;font-variant-numeric:tabular-nums}
+  .day.active .day-h{background:color-mix(in srgb,var(--accent) 9%,transparent)}
+  .dtot{font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--accent);
+    background:color-mix(in srgb,var(--accent) 15%,transparent);padding:3px 10px;border-radius:20px}
+  .shift{display:flex;align-items:center;gap:10px;padding:12px 14px;border-top:1px solid var(--line);
+    flex-wrap:wrap}
+  .shift .field{display:flex;flex-direction:column;gap:4px}
+  .shift .field label{font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.3px}
+  input[type=time]{background:var(--card2);border:1px solid var(--line);color:var(--txt);
+    border-radius:11px;padding:10px 11px;font-size:16px;min-width:108px;
+    font-variant-numeric:tabular-nums;transition:.12s}
+  input[type=time]:focus,input[type=number]:focus,textarea:focus{outline:none;
+    border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 22%,transparent)}
+  .dur{margin-left:auto;font-weight:800;font-size:15px;font-variant-numeric:tabular-nums;
+    white-space:nowrap;text-align:center;min-width:62px;color:var(--ok);
+    background:color-mix(in srgb,var(--ok) 15%,transparent);padding:6px 10px;border-radius:11px}
+  .dur.empty{color:var(--muted);font-weight:500;background:var(--card2)}
+  .del{background:none;border:none;color:var(--muted);font-size:17px;cursor:pointer;
+    padding:6px;line-height:1;border-radius:9px;transition:.12s}
+  .del:hover{color:var(--danger);background:color-mix(in srgb,var(--danger) 14%,transparent)}
+  .addshift{width:100%;background:none;border:none;color:var(--accent);text-align:left;
+    padding:11px 14px;border-top:1px dashed var(--line);font-size:14px;font-weight:600;cursor:pointer;
+    transition:.12s}
+  .addshift:hover{background:color-mix(in srgb,var(--accent) 8%,transparent)}
+
+  /* righe / controlli */
+  .row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .row label{font-size:14px;color:var(--muted)}
+  input[type=number]{width:96px;background:var(--card2);border:1px solid var(--line);color:var(--txt);
+    border-radius:11px;padding:10px 11px;font-size:16px;font-weight:600}
+  textarea{width:100%;margin-top:10px;background:var(--card2);border:1px solid var(--line);color:var(--txt);
+    border-radius:12px;padding:12px;font-size:15px;resize:vertical;font-family:inherit;line-height:1.5}
+  .btn{background:var(--card2);border:1px solid var(--line);color:var(--txt);
+    border-radius:11px;padding:10px 14px;font-size:14px;font-weight:600;cursor:pointer;transition:.12s}
+  .btn:hover{border-color:var(--accent);color:var(--accent)}
+  .btn:active{transform:scale(.97)}
+  .btn.accent{background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;color:#fff;
+    box-shadow:0 5px 14px color-mix(in srgb,var(--accent) 40%,transparent)}
+  .btn.accent:hover{filter:brightness(1.06);color:#fff}
+  .thumb{margin-top:12px;max-width:100%;border-radius:12px;border:1px solid var(--line);
+    cursor:zoom-in;display:block}
+  .hint{color:var(--muted);font-size:12.5px;margin-top:10px;line-height:1.5}
+
+  /* modal immagine */
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.88);display:none;
+    align-items:center;justify-content:center;padding:16px;z-index:50;backdrop-filter:blur(4px)}
+  .modal.open{display:flex}
+  .modal img{max-width:100%;max-height:100%;border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+  .modal .x{position:fixed;top:14px;right:18px;color:#fff;font-size:32px;cursor:pointer;line-height:1}
+
+  /* tendina configurazione settimanale */
+  .fold{margin-bottom:14px;border:1px solid var(--line);border-radius:var(--radius);
+    background:var(--card);box-shadow:var(--shadow);overflow:hidden}
+  .fold>summary{list-style:none;cursor:pointer;padding:15px 16px;display:flex;align-items:center;
+    gap:9px;font-weight:650;font-size:15px;user-select:none;transition:.12s}
+  .fold>summary::-webkit-details-marker{display:none}
+  .fold>summary:hover{background:color-mix(in srgb,var(--accent) 7%,transparent)}
+  .fold>summary .hintmini{font-weight:500;font-size:12px;color:var(--muted)}
+  .fold>summary .chev{margin-left:auto;color:var(--muted);font-size:14px;transition:.2s}
+  .fold[open]>summary .chev{transform:rotate(180deg)}
+  .fold[open]>summary{border-bottom:1px solid var(--line)}
+  .fold-body{padding:2px 16px 12px}
+  .fold-sec{padding:14px 0}
+  .fold-sec+.fold-sec{border-top:1px solid var(--line)}
+
+  /* dedica */
+  .love{text-align:center;margin:6px 0 18px;padding:16px 12px;border-radius:var(--radius);
+    background:linear-gradient(135deg,color-mix(in srgb,var(--accent2) 20%,var(--card)),color-mix(in srgb,#ff5d8f 16%,var(--card)));
+    border:1px solid color-mix(in srgb,#ff5d8f 30%,var(--line));box-shadow:var(--shadow)}
+  .love .txt{font-size:26px;font-weight:850;letter-spacing:.5px;line-height:1.25;
+    background:linear-gradient(120deg,#ff8fb1,#ff5d8f,var(--accent2));-webkit-background-clip:text;
+    background-clip:text;color:transparent}
+  .love .heart{display:inline-block;font-size:30px;margin-top:6px;animation:beat 1.1s ease-in-out infinite}
+  @keyframes beat{0%,100%{transform:scale(1)}15%{transform:scale(1.28)}30%{transform:scale(1)}45%{transform:scale(1.18)}}
+</style>
+
+<div class="wrap">
+  <div class="head">
+    <div class="logo">🗓️</div>
+    <div>
+      <h1>Ore di Chirine</h1>
+      <div class="sub" style="margin:0">Arrotondamento al quarto d'ora <b>per eccesso</b> · <b>9,50 €/h</b></div>
+    </div>
+  </div>
+  <div class="love">
+    <div class="txt">TI AMO AMORE MIO</div>
+    <div class="heart">❤️</div>
+  </div>
+
+  <!-- CONFIGURAZIONE SETTIMANALE (a tendina) -->
+  <details class="fold">
+    <summary>📋 Incolla turni e impostazioni <span class="hintmini">— una volta a settimana</span><span class="chev">▾</span></summary>
+    <div class="fold-body">
+
+      <div class="fold-sec">
+        <div class="card-t">Incolla la lista turni</div>
+        <textarea id="paste" rows="4" placeholder="Incolla qui la lista completa (Giulia, Chirine, Linda…). Leggo solo gli orari di Chirine e li assegno al giorno giusto."></textarea>
+        <div class="row" style="margin-top:10px">
+          <button class="btn accent" id="readBtn">Leggi turni di Chirine</button>
+          <button class="btn" id="clearPaste">Pulisci</button>
+        </div>
+        <div id="preview"></div>
+      </div>
+
+      <div class="fold-sec">
+        <div class="row">
+          <label>Paga oraria</label>
+          <input type="number" id="rate" step="0.5" min="0" inputmode="decimal"> €/h
+          <button class="btn" id="imgBtn" style="margin-left:auto">📷 Immagine turni</button>
+          <input type="file" id="imgFile" accept="image/*" style="display:none">
+        </div>
+        <img id="thumb" class="thumb" style="display:none" alt="Foto turni">
+        <div class="hint" id="imgHint">Facoltativo: carica lo screenshot come riferimento.</div>
+      </div>
+
+    </div>
+  </details>
+
+  <!-- SETTIMANA -->
+  <div class="card hero">
+    <div class="weeknav">
+      <button class="navbtn" id="prev">‹</button>
+      <div class="rng" id="range"></div>
+      <button class="navbtn" id="next">›</button>
+    </div>
+    <div class="summary">
+      <div class="stat"><div class="lab">Ore settimana</div><div class="val" id="totH">0h</div></div>
+      <div class="stat pay"><div class="lab">Paga</div><div class="val" id="totPay">0,00 €</div></div>
+    </div>
+    <div class="today-wrap">
+      <button class="btn" id="today">Vai a questa settimana</button>
+    </div>
+  </div>
+
+  <!-- GIORNI -->
+  <div id="days"></div>
+</div>
+
+<div class="modal" id="modal"><span class="x">✕</span><img id="modalImg" alt=""></div>
+
+<script>
+const K_SHIFTS='chirine_shifts', K_RATE='chirine_rate', K_IMG='chirine_img';
+const GIORNI=['lunedì','martedì','mercoledì','giovedì','venerdì','sabato','domenica'];
+const MESI=['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];
+
+let shifts = load(K_SHIFTS, []);
+let rate   = load(K_RATE, 9.5);
+let img    = localStorage.getItem(K_IMG) || '';
+let monday = mondayOf(new Date());
+
+function load(k,def){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):def; }catch(e){ return def; } }
+function save(){ localStorage.setItem(K_SHIFTS,JSON.stringify(shifts)); localStorage.setItem(K_RATE,JSON.stringify(rate)); }
+
+// ---- date helpers ----
+function mondayOf(d){ const x=new Date(d); x.setHours(0,0,0,0); const g=(x.getDay()+6)%7; x.setDate(x.getDate()-g); return x; }
+function addDays(d,n){ const x=new Date(d); x.setDate(x.getDate()+n); return x; }
+function iso(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function ddmm(d){ return d.getDate()+' '+MESI[d.getMonth()]; }
+
+// ---- calcolo durata ----
+function toMin(t){ if(!t)return null; const[p,q]=t.split(':').map(Number); return p*60+q; }
+function rawMinutes(start,end){ const a=toMin(start),b=toMin(end); if(a==null||b==null)return null;
+  let m=b-a; if(m<=0)m+=1440; return m; }                    // gestisce fine dopo mezzanotte
+function roundUp(min){ return Math.ceil(min/15)*15; }         // per eccesso al quarto d'ora
+function fmtDur(min){ if(min==null)return '—'; const h=Math.floor(min/60),m=min%60; return m? h+'h'+String(m).padStart(2,'0') : h+'h'; }
+function euro(n){ return n.toLocaleString('it-IT',{minimumFractionDigits:2,maximumFractionDigits:2})+' €'; }
+
+// ---- parser lista turni ----
+const RE_GIORNO=/(luned[iì]|marted[iì]|mercoled[iì]|gioved[iì]|venerd[iì]|sabato|domenica)/i;
+const RE_DATA=/(\d{1,2})\s*\/\s*(\d{1,2})/;                 // 14/7 anche con spazi
+const RE_ORA=/(\d{1,2})[:.](\d{2})/;                        // 18:30 o 18.30
+
+function annoVicino(dd,mm){                                 // sceglie l'anno che rende la data più vicina a oggi
+  const oggi=new Date(), y=oggi.getFullYear();
+  let best=null,bd=Infinity;
+  for(const yy of [y-1,y,y+1]){ const d=new Date(yy,mm-1,dd); const diff=Math.abs(d-oggi);
+    if(diff<bd){ bd=diff; best=d; } }
+  return best;
+}
+function parseLista(txt){
+  const out=[]; let cur=null;
+  for(let line of txt.split(/\r?\n/)){
+    line=line.trim(); if(!line) continue;
+    const g=RE_GIORNO.exec(line), dt=RE_DATA.exec(line);
+    if(g && dt){ cur=annoVicino(+dt[1],+dt[2]); continue; }   // riga giorno+data → àncora
+    if(/^chirine\b/i.test(line)){                            // riga di Chirine
+      const o=RE_ORA.exec(line);
+      if(o && cur){ out.push({date:iso(cur), start:String(+o[1]).padStart(2,'0')+':'+o[2]}); }
+    }
+  }
+  return out;
+}
+
+// ---- render ----
+function render(){
+  document.getElementById('rate').value = rate;
+  const sun = addDays(monday,6);
+  document.getElementById('range').textContent = ddmm(monday)+' – '+ddmm(sun)+' '+sun.getFullYear();
+
+  const daysEl = document.getElementById('days'); daysEl.innerHTML='';
+  let weekMin = 0;
+
+  for(let i=0;i<7;i++){
+    const d = addDays(monday,i), key = iso(d);
+    const dayShifts = shifts.filter(s=>s.date===key);
+    let dayMin = 0;
+    dayShifts.forEach(s=>{ const m=rawMinutes(s.start,s.end); if(m!=null){ dayMin+=roundUp(m); } });
+    weekMin += dayMin;
+
+    const day=document.createElement('div'); day.className='day'+(dayShifts.length?' active':'');
+    day.innerHTML =
+      `<div class="day-h"><span class="name"><span class="wd">${GIORNI[i]}</span><span class="dt">${d.getDate()}/${d.getMonth()+1}</span></span>`+
+      `<span class="dtot">${dayMin?fmtDur(dayMin):''}</span></div>`;
+
+    dayShifts.forEach(s=>{
+      const m=rawMinutes(s.start,s.end); const dur = m!=null? fmtDur(roundUp(m)) : '—';
+      const row=document.createElement('div'); row.className='shift';
+      row.innerHTML =
+        `<div class="field"><label>Inizio</label><input type="time" value="${s.start||''}" data-id="${s.id}" data-f="start"></div>`+
+        `<div class="field"><label>Fine</label><input type="time" value="${s.end||''}" data-id="${s.id}" data-f="end"></div>`+
+        `<span class="dur ${m==null?'empty':''}">${dur}</span>`+
+        `<button class="del" data-del="${s.id}" title="Elimina turno">🗑</button>`;
+      day.appendChild(row);
+    });
+
+    const add=document.createElement('button'); add.className='addshift'; add.textContent='+ aggiungi turno';
+    add.onclick=()=>{ shifts.push({id:Date.now()+Math.random().toString(36).slice(2,6),date:key,start:'',end:''}); save(); render(); };
+    day.appendChild(add);
+    daysEl.appendChild(day);
+  }
+
+  document.getElementById('totH').textContent = weekMin? fmtDur(weekMin)+' ('+(weekMin/60).toLocaleString('it-IT',{maximumFractionDigits:2})+'h)' : '0h';
+  document.getElementById('totPay').textContent = euro(weekMin/60*rate);
+
+  // eventi input
+  daysEl.querySelectorAll('input[type=time]').forEach(inp=>{
+    inp.onchange=()=>{ const s=shifts.find(x=>x.id==inp.dataset.id); if(s){ s[inp.dataset.f]=inp.value; save(); render(); } };
+  });
+  daysEl.querySelectorAll('[data-del]').forEach(b=>{
+    b.onclick=()=>{ shifts=shifts.filter(x=>x.id!=b.dataset.del); save(); render(); };
+  });
+}
+
+// ---- eventi globali ----
+document.getElementById('prev').onclick =()=>{ monday=addDays(monday,-7); render(); };
+document.getElementById('next').onclick =()=>{ monday=addDays(monday, 7); render(); };
+document.getElementById('today').onclick=()=>{ monday=mondayOf(new Date()); render(); };
+document.getElementById('rate').onchange=e=>{ rate=parseFloat(e.target.value)||0; save(); render(); };
+
+// ---- incolla lista ----
+const preview=document.getElementById('preview');
+let trovati=[];
+function nomeGiorno(dstr){ const d=new Date(dstr+'T00:00:00'); return GIORNI[(d.getDay()+6)%7]; }
+document.getElementById('clearPaste').onclick=()=>{ document.getElementById('paste').value=''; preview.innerHTML=''; trovati=[]; };
+document.getElementById('readBtn').onclick=()=>{
+  trovati = parseLista(document.getElementById('paste').value);
+  if(!trovati.length){ preview.innerHTML='<div class="hint" style="color:var(--danger)">Nessun turno di Chirine trovato. Controlla che ci siano le righe con giorno e data (es. «Martedì 14/7»).</div>'; return; }
+  let html='<div class="hint" style="margin-top:12px;color:var(--txt)"><b>Trovati '+trovati.length+' turni:</b></div>'
+    +'<div style="margin:6px 0 10px">'+trovati.map(t=>{
+      const d=new Date(t.date+'T00:00:00');
+      return '• '+nomeGiorno(t.date)+' '+d.getDate()+'/'+(d.getMonth()+1)+' — inizio '+t.start;
+    }).join('<br>')+'</div>'
+    +'<button class="btn accent" id="applyBtn">Aggiungi al calendario</button>';
+  preview.innerHTML=html;
+  document.getElementById('applyBtn').onclick=()=>{
+    let agg=0;
+    trovati.forEach(t=>{
+      if(shifts.some(s=>s.date===t.date && s.start===t.start)) return;  // evita duplicati, non tocca le fini già inserite
+      shifts.push({id:Date.now()+Math.random().toString(36).slice(2,6),date:t.date,start:t.start,end:''});
+      agg++;
+    });
+    save();
+    monday = mondayOf(new Date(trovati[0].date+'T00:00:00'));           // salta alla settimana dei turni letti
+    render();
+    preview.innerHTML='<div class="hint" style="color:var(--ok)">Aggiunti '+agg+' turni'+(agg<trovati.length?' ('+(trovati.length-agg)+' già presenti)':'')+'. Ora inserisci le ore di fine.</div>';
+    document.getElementById('paste').value='';
+  };
+};
+
+// ---- immagine (ridimensionata prima di salvare) ----
+const thumb=document.getElementById('thumb'), imgHint=document.getElementById('imgHint');
+function showImg(){ if(img){ thumb.src=img; thumb.style.display='block';
+    imgHint.textContent='Tocca la foto per ingrandirla. Ricarica per sostituirla.'; }
+  else { thumb.style.display='none'; } }
+document.getElementById('imgBtn').onclick=()=>document.getElementById('imgFile').click();
+document.getElementById('imgFile').onchange=e=>{
+  const f=e.target.files[0]; if(!f)return; const r=new FileReader();
+  r.onload=()=>{ const im=new Image(); im.onload=()=>{
+      const max=1100, sc=Math.min(1,max/im.width); const c=document.createElement('canvas');
+      c.width=im.width*sc; c.height=im.height*sc; c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+      img=c.toDataURL('image/jpeg',0.72);
+      try{ localStorage.setItem(K_IMG,img); }catch(err){ alert('Immagine troppo grande per la memoria del browser.'); }
+      showImg(); };
+    im.src=r.result; };
+  r.readAsDataURL(f);
+};
+const modal=document.getElementById('modal');
+thumb.onclick=()=>{ document.getElementById('modalImg').src=img; modal.classList.add('open'); };
+modal.onclick=()=>modal.classList.remove('open');
+
+showImg();
+render();
+</script>
