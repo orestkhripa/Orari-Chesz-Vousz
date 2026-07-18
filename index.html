@@ -72,10 +72,10 @@
     flex-wrap:wrap}
   .shift .field{display:flex;flex-direction:column;gap:4px}
   .shift .field label{font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.3px}
-  input[type=time]{background:var(--card2);border:1px solid var(--line);color:var(--txt);
-    border-radius:11px;padding:10px 11px;font-size:16px;min-width:108px;
+  .tinput{background:var(--card2);border:1px solid var(--line);color:var(--txt);
+    border-radius:11px;padding:10px 11px;font-size:16px;width:92px;text-align:center;letter-spacing:1px;
     font-variant-numeric:tabular-nums;transition:.12s}
-  input[type=time]:focus,input[type=number]:focus,textarea:focus{outline:none;
+  .tinput:focus,input[type=number]:focus,textarea:focus{outline:none;
     border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 22%,transparent)}
   .dur{margin-left:auto;font-weight:800;font-size:15px;font-variant-numeric:tabular-nums;
     white-space:nowrap;text-align:center;min-width:62px;color:var(--ok);
@@ -230,6 +230,12 @@ function rawMinutes(start,end){ const a=toMin(start),b=toMin(end); if(a==null||b
 function roundUp(min){ return Math.ceil(min/15)*15; }         // per eccesso al quarto d'ora
 function fmtDur(min){ if(min==null)return '—'; const h=Math.floor(min/60),m=min%60; return m? h+'h'+String(m).padStart(2,'0') : h+'h'; }
 function euro(n){ return n.toLocaleString('it-IT',{minimumFractionDigits:2,maximumFractionDigits:2})+' €'; }
+function normTime(v){                                         // "1830"/"9:30"/"18.30" -> "18:30"; '' se vuoto; null se impossibile
+  const d=(v||'').replace(/\D/g,''); if(!d) return '';
+  let hh,mm; if(d.length<=2){ hh=+d; mm=0; } else { mm=+d.slice(-2); hh=+d.slice(0,-2); }
+  if(isNaN(hh)||isNaN(mm)||hh>23||mm>59) return null;
+  return String(hh).padStart(2,'0')+':'+String(mm).padStart(2,'0');
+}
 
 // ---- parser lista turni ----
 const RE_GIORNO=/(luned[iì]|marted[iì]|mercoled[iì]|gioved[iì]|venerd[iì]|sabato|domenica)/i;
@@ -282,8 +288,8 @@ function render(){
       const m=rawMinutes(s.start,s.end); const dur = m!=null? fmtDur(roundUp(m)) : '—';
       const row=document.createElement('div'); row.className='shift';
       row.innerHTML =
-        `<div class="field"><label>Inizio</label><input type="time" value="${s.start||''}" data-id="${s.id}" data-f="start"></div>`+
-        `<div class="field"><label>Fine</label><input type="time" value="${s.end||''}" data-id="${s.id}" data-f="end"></div>`+
+        `<div class="field"><label>Inizio</label><input type="text" class="tinput" inputmode="numeric" maxlength="5" placeholder="––:––" value="${s.start||''}" data-id="${s.id}" data-f="start"></div>`+
+        `<div class="field"><label>Fine</label><input type="text" class="tinput" inputmode="numeric" maxlength="5" placeholder="––:––" value="${s.end||''}" data-id="${s.id}" data-f="end"></div>`+
         `<span class="dur ${m==null?'empty':''}">${dur}</span>`+
         `<button class="del" data-del="${s.id}" title="Elimina turno">🗑</button>`;
       day.appendChild(row);
@@ -298,9 +304,12 @@ function render(){
   document.getElementById('totH').textContent = weekMin? fmtDur(weekMin)+' ('+(weekMin/60).toLocaleString('it-IT',{maximumFractionDigits:2})+'h)' : '0h';
   document.getElementById('totPay').textContent = euro(weekMin/60*rate);
 
-  // eventi input
-  daysEl.querySelectorAll('input[type=time]').forEach(inp=>{
-    inp.onchange=()=>{ const s=shifts.find(x=>x.id==inp.dataset.id); if(s){ s[inp.dataset.f]=inp.value; save(); render(); } };
+  // eventi input ora (testo scrivibile: i due punti si mettono da soli)
+  daysEl.querySelectorAll('input.tinput').forEach(inp=>{
+    inp.oninput=()=>{ let d=inp.value.replace(/\D/g,'').slice(0,4); inp.value = d.length>2? d.slice(0,2)+':'+d.slice(2) : d; };
+    inp.onchange=()=>{ const s=shifts.find(x=>x.id==inp.dataset.id); if(!s)return;
+      const n=normTime(inp.value); if(n===null){ inp.value=s[inp.dataset.f]||''; return; }  // ora impossibile: ripristina
+      s[inp.dataset.f]=n; save(); render(); };
   });
   daysEl.querySelectorAll('[data-del]').forEach(b=>{
     b.onclick=()=>{ shifts=shifts.filter(x=>x.id!=b.dataset.del); save(); render(); };
